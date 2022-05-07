@@ -15,10 +15,11 @@ pygame.display.set_icon(icon)
 playerImg = pygame.image.load('001-arcade-game.png')
 playerX = 370
 playerY = 480
+playerX_change = 0
 
-def player():
+
+def player(x, y):
     screen.blit(playerImg, (playerX, playerY))
-
 
 #Criando um loop para a tela do jogo continuar aberta
 running = True
@@ -31,8 +32,20 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+        #Verificador se a tecla para esq. ou dir. foi pressionada
+        if event.type == pygame.KEYDOWN:
+            print('Uma tecla foi pressionada')
+            if event.key == pygame.K_LEFT:
+                playerX_change = -0.3
+            if event.key == pygame.K_RIGHT:
+                playerX_change = 0.3
+        if event.type == pygame.KEYUP:
+            if event.key ==  pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                playerX_change = 0
 
-    player()
+
+    playerX += playerX_change
+    player(playerX, playerY)
     pygame.display.update()
 
 
