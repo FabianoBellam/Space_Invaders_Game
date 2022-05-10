@@ -1,3 +1,4 @@
+import math
 import pygame
 import random
 
@@ -23,20 +24,22 @@ playerX_change = 0
 
 # Inimigo
 enemyImg = pygame.image.load('001-enemy.png')
-enemyX = random.randint(0, 800)
+enemyX = random.randint(0, 735)
 enemyY = random.randint(50, 150)
 enemyX_change = 0.2
 enemyY_change = 30
 
 #Bala
-#Bala - Não é possível ver a bala na tela
+#Armado - Não é possível ver a bala na tela
 #fire - a bala está se movendo
 bulletImg = pygame.image.load('001-bullet.png')
 bulletX = 0
 bulletY = 480
 bullet_change = 0
-bulletY_change = 0.5
-bullet_state = 'pronto'
+bulletY_change = 0.75
+bullet_state = 'armado'
+
+score = 0
 
 def player(x, y):
     screen.blit(playerImg, (x, y))
@@ -50,6 +53,15 @@ def fire_bullet(x, y):
     global bullet_state
     bullet_state = 'fire'
     screen.blit(bulletImg, (x+16, y+10))
+
+
+def isCollision(enemyX, enemyY, bulletX, bulletY):
+    #usada a formula abaixo para calcular a distância entre duas duas cordenadas
+    distance = math.sqrt((math.pow(enemyX - bulletX, 2)) + (math.pow(enemyY - bulletY, 2)))
+    if distance < 27: #valor em pixels
+        return True
+    else:
+        return False
 
 
 # Criando um loop para a tela do jogo continuar aberta
@@ -72,7 +84,11 @@ while running:
             if event.key == pygame.K_RIGHT:
                 playerX_change = 0.3
             if event.key == pygame.K_SPACE:
-                fire_bullet(playerX, bulletY)
+                if bullet_state == 'armado':
+                    #Para obter a coordenada 'X' da espaçonave no momento do tiro e armazenar na variável
+                    #em seguida dispara o tiro usando a variavél como coordenada
+                    bulletX = playerX
+                    fire_bullet(bulletX, bulletY)
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
@@ -101,9 +117,23 @@ while running:
         enemyY += enemyY_change
 
     #Movimento da bala
-    if bullet_state is 'fire':
-        fire_bullet(playerX, bulletY)
+    if bulletY <= 0:
+        bulletY = 480
+        bullet_state = 'armado'
+
+    if bullet_state == 'fire':
+        fire_bullet(bulletX, bulletY)
         bulletY -= bulletY_change
+
+    #Colisão entre a bala e o alienígena
+    colisao = isCollision(enemyX, enemyY, bulletX, bulletY)
+    if colisao:
+        bulletY = 480
+        bullet_state = 'armado'
+        score += 1
+        print(score)
+        enemyX = random.randint(0, 735)
+        enemyY = random.randint(50, 150)
 
     player(playerX, playerY)
     enemy(enemyX, enemyY)
