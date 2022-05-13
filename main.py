@@ -1,6 +1,7 @@
 import math
 import random
 import pygame
+import sys
 from pygame import mixer
 
 # Inicializando o pygame
@@ -16,7 +17,6 @@ background = pygame.image.load('Space_background.jpg')
 mixer.music.load('background.wav')
 mixer.music.play(-1)
 
-
 # Alterar Titulo e Icone da Página
 pygame.display.set_caption('Space Invaders')
 icon = pygame.image.load('001-spaceship.png')
@@ -28,7 +28,7 @@ playerX = 370
 playerY = 480
 playerX_change = 0
 
-# Inimigo
+# Inimigo(s)
 enemyImg = []
 enemyX = []
 enemyY = []
@@ -44,8 +44,8 @@ for i in range(num_of_enemies):
     enemyY_change.append(30)
 
 # Bala
-# Armado - Não é possível ver a bala na tela
-# Fire - a bala está se movendo
+# Armado (Não é possível ver a bala na tela)
+# Fire (a bala está em movimento)
 bulletImg = pygame.image.load('001-bullet.png')
 bulletX = 0
 bulletY = 480
@@ -57,14 +57,21 @@ bullet_state = 'armado'
 score_value = 0
 font = pygame.font.Font('freesansbold.ttf', 32)
 
-# determinando a localização do marcador na tela
+# Vari[aveis para determinar a localização do Score na tela
 textX = 10
 textY = 10
 
+# Game Over Text
+over_font = pygame.font.Font('freesansbold.ttf', 64)
 
 def show_score(x, y):
     score = font.render('Score: ' + str(score_value), True, (255, 255, 255))
     screen.blit(score, (x, y))
+
+
+def game_over_text():
+    over_text = over_font.render('GAME OVER', True, (255, 255, 255))
+    screen.blit(over_text, (200, 250))
 
 
 def player(x, y):
@@ -107,9 +114,9 @@ while running:
         if event.type == pygame.KEYDOWN:
             # print('Uma tecla foi pressionada')
             if event.key == pygame.K_LEFT:
-                playerX_change = -0.3
+                playerX_change = -0.6
             if event.key == pygame.K_RIGHT:
-                playerX_change = 0.3
+                playerX_change = 0.6
             if event.key == pygame.K_SPACE:
                 if bullet_state == 'armado':
                     # Introduzindo som de disparo da bala
@@ -137,6 +144,14 @@ while running:
 
     # Movimento do inimigo na tela
     for i in range(num_of_enemies):
+
+        # Game Over
+        if enemyY[i] > 440:
+            for j in range(num_of_enemies):
+                enemyY[j] = 2000
+            game_over_text()
+            break
+
         enemyX[i] += enemyX_change[i]
 
         # Mantem a inimigo dentro dos limites da janela
